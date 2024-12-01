@@ -40,7 +40,6 @@ const signup = [
 ];
 
 const login = [
-  // Validações para o login
   body('email').isEmail().withMessage('O campo "email" deve ser válido'),
   body('password').notEmpty().withMessage('O campo "password" é obrigatório'),
 
@@ -53,36 +52,39 @@ const login = [
     const { email, password } = req.body;
 
     try {
-      // Verifica se o email existe no banco
       const user = await User.findOne({ where: { email } });
 
       if (!user) {
         return res.status(401).json({ message: 'Credenciais inválidas' });
       }
 
-      // Verifica a senha
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Credenciais inválidas' });
       }
 
-      // Gera o token JWT
       const token = jwt.sign(
         { id: user.id },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
       );
 
-      return res.status(200).json({ message: 'Login realizado com sucesso', token });
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 3600000, 
+      });
+
+      return res.status(200).json({ message: 'Login realizado com sucesso' });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
   }
 ];
 
-// Logout apenas retorna uma mensagem de confirmação
 const logout = (req, res) => {
+  res.clearCookie('auth_token');
   return res.status(200).json({ message: 'Logout realizado com sucesso' });
 };
 
