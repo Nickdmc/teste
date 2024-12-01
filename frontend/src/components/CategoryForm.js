@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useParams, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../api' // Importa a configuração do axios
 
 export default function CategoryForm() {
   const [category, setCategory] = useState({ name: '' })
@@ -16,7 +16,7 @@ export default function CategoryForm() {
 
   const fetchCategory = async () => {
     try {
-      const response = await axios.get(`http://localhost:3335/api/v1/categories/${id}`)
+      const response = await api.get(`/v1/categories/${id}`)
       setCategory(response.data)
     } catch (error) {
       console.error('Error fetching category:', error)
@@ -27,9 +27,9 @@ export default function CategoryForm() {
     e.preventDefault()
     try {
       if (id) {
-        await axios.put(`http://localhost:3335/api/v1/categories/${id}`, category)
+        await api.put(`/v1/categories/${id}`, category)
       } else {
-        await axios.post('http://localhost:3335/api/v1/categories', category)
+        await api.post('/v1/categories', category)
       }
       navigate('/categories')
     } catch (error) {
@@ -47,7 +47,13 @@ export default function CategoryForm() {
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Name</Form.Label>
-          <Form.Control type="text" name="name" value={category.name} onChange={handleChange} required />
+          <Form.Control
+            type="text"
+            name="name"
+            value={category.name}
+            onChange={handleChange}
+            required
+          />
         </Form.Group>
         <Button variant="primary" type="submit">
           {id ? 'Update' : 'Create'} Category

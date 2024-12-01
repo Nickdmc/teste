@@ -1,40 +1,40 @@
-// Disable dotenv in a production env
+// Disable dotenv in a production environment
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
+  require('dotenv').config(); // Carrega as variáveis do arquivo .env
 }
 
-const express = require('express')
-const cors = require('cors')
-const logger = require('morgan')
-const helmet = require('helmet')
+const express = require('express');
+const cors = require('cors');
+const logger = require('morgan');
+const helmet = require('helmet');
 
-// Routes import
-const routes = require('./routes')
+// Importa as rotas
+const routes = require('./routes');
 
-// Initialize express
-const app = express()
+// Inicializa o express
+const app = express();
 
-// Port if PORT env variable does not exist in .env
-const port = process.env.PORT || 3335
+// Define a porta, com fallback para 3335
+const port = process.env.PORT || 3335;
 
-// CORS
+// Configuração do CORS
 const corsOptions = {
-  origin: `${process.env.FRONTEND_URL}`,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}
+  origin: process.env.FRONTEND_URL || '*', // Permite acesso do frontend, usa "*" se não configurado
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos HTTP permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
+};
 
-// Middleware
-app.use(cors(corsOptions))
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(logger('dev'))
-app.use(helmet())
+// Middlewares
+app.use(cors(corsOptions)); // Habilita CORS
+app.use(express.json()); // Suporte a JSON no corpo das requisições
+app.use(express.urlencoded({ extended: true })); // Suporte para dados de formulários
+app.use(logger('dev')); // Loga requisições em desenvolvimento
+app.use(helmet()); // Segurança adicional para headers HTTP
 
-// Routes middleware
-app.use('/api', routes)
+// Middleware para rotas
+app.use('/api', routes); // Prefixa as rotas com "/api"
 
-// Port listener
+// Listener para inicializar o servidor
 app.listen(port, () => {
-  console.log(`Server is running on ${port}`)
-})
+  console.log(`Servidor rodando na porta ${port}`);
+});

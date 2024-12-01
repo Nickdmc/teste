@@ -1,22 +1,17 @@
 const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = process.env;
 
 const authMiddleware = (req, res, next) => {
-  const token = req.headers['authorization'];
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ message: 'Token não encontrado.' });
 
-  if (!token) {
-    return res.status(401).send('É necessário estar autenticado para acessar esta rota');
-  }
-
-  const cleanToken = token.replace('Bearer ', '');
-
-  try {
-    const verified = jwt.verify(cleanToken, process.env.JWT_SECRET);
-    req.user = verified;
-    next();
-  } catch (error) {
-    console.log(error);
-    res.status(400).send('Invalid Token');
-  }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: 'Token inválido.' });
+    }
 };
 
 module.exports = authMiddleware;
