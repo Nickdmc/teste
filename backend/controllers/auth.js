@@ -87,7 +87,6 @@ const logout = (req, res) => {
   res.clearCookie('auth_token');
   return res.status(200).json({ message: 'Logout realizado com sucesso' });
 };
-
 module.exports = {
   signup,
   login,
